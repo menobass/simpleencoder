@@ -1,6 +1,6 @@
 # 🎬 Simple Video Compressor (PWA)
 
-A lightweight **Progressive Web App** that lets users **compress videos directly in the browser** using [`ffmpeg.wasm`](https://github.com/ffmpegwasm/ffmpeg.wasm).  
+A lightweight **Progressive Web App** built for the **3Speak Community** that lets users **compress videos directly in the browser** using [`ffmpeg.wasm`](https://github.com/ffmpegwasm/ffmpeg.wasm).  
 No uploads, no servers — everything happens locally for **privacy** and **speed**.
 
 ## 🚀 Features
@@ -12,6 +12,7 @@ No uploads, no servers — everything happens locally for **privacy** and **spee
 ✅ **File Size Comparison** - View original vs compressed file sizes  
 ✅ **PWA Support** - Install and use offline on any device  
 ✅ **Privacy Focused** - No files ever leave your device  
+✅ **Modern Design** - Twitter-inspired UI with clean, professional styling  
 
 ## 🛠️ Tech Stack
 
@@ -29,7 +30,13 @@ No uploads, no servers — everything happens locally for **privacy** and **spee
 
 ### Installation
 
-1. **Clone and install dependencies:**
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/menobass/simpleencoder.git
+   cd simpleencoder
+   ```
+
+2. **Install dependencies:**
    ```bash
    npm install
    ```
@@ -108,16 +115,15 @@ public/
 
 Deploy to any static hosting service:
 
+### Vercel (Recommended)
+1. Connect your GitHub repository to [Vercel](https://vercel.com)
+2. Vercel will auto-detect Vite and deploy automatically
+3. Your app will be live with automatic deployments on every push
+
 ### Netlify
 ```bash
 npm run build
 # Deploy the 'dist' folder
-```
-
-### GitHub Pages
-```bash
-npm run build
-# Push 'dist' folder to gh-pages branch
 ```
 
 ### Cloudflare Pages
@@ -165,12 +171,14 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ---
 
-**Made with ❤️ for users who need fast, private video compression**
+**Built for the 3Speak Community with ❤️ by @meno**
 
-## React Compiler
+## 🔗 Links
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Live Demo:** [Coming Soon - Deploy to see it live!]
+- **Repository:** [https://github.com/menobass/simpleencoder](https://github.com/menobass/simpleencoder)
+- **3Speak:** [https://3speak.tv](https://3speak.tv)
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+*Empowering content creators with fast, private video compression tools.*
