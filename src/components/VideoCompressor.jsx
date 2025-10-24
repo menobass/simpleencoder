@@ -13,6 +13,9 @@ const VideoCompressor = () => {
   const [compressedSize, setCompressedSize] = useState(0);
   const [ffmpegLoaded, setFfmpegLoaded] = useState(false);
   const [message, setMessage] = useState('');
+  const [useMaxAcceleration, setUseMaxAcceleration] = useState(false);
+  const [showAccelerationWarning, setShowAccelerationWarning] = useState(false);
+  const [detectedCores] = useState(() => navigator.hardwareConcurrency || 4);
   
   const ffmpegRef = useRef(new FFmpeg());
 
@@ -90,12 +93,14 @@ const VideoCompressor = () => {
       await ffmpeg.writeFile('input.mp4', await fetchFile(selectedFile));
       setMessage('Processing video...');
 
-      // Run compression
+      // Run compression with threading optimization
+      const threads = useMaxAcceleration ? '0' : '2'; // 0 = all cores, 2 = conservative
       await ffmpeg.exec([
         '-i', 'input.mp4',
         '-vcodec', 'libx264',
         '-crf', compressionLevel,
         '-preset', 'fast',
+        '-threads', threads,
         '-movflags', '+faststart',
         'output.mp4'
       ]);
@@ -285,10 +290,132 @@ const VideoCompressor = () => {
             </div>
           )}
 
+          {/* Hardware Acceleration Toggle */}
+          {selectedFile && (
+            <div className="mb-8">
+              <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-2xl p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg text-gray-900">⚡ Max Hardware Acceleration</h3>
+                      <p className="text-sm text-gray-600">
+                        {useMaxAcceleration 
+                          ? `Using all ${detectedCores} CPU cores for maximum speed` 
+                          : "Conservative mode (2 cores) - better for battery life"
+                        }
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    {useMaxAcceleration && (
+                      <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full font-medium">
+                        🔋 {detectedCores} Cores
+                      </span>
+                    )}
+                    <button
+                      onClick={() => {
+                        if (!useMaxAcceleration) {
+                          setShowAccelerationWarning(true);
+                        } else {
+                          setUseMaxAcceleration(false);
+                        }
+                      }}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ${
+                        useMaxAcceleration ? 'bg-purple-500' : 'bg-gray-300'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+                          useMaxAcceleration ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Hardware Acceleration Warning Modal */}
+          {showAccelerationWarning && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl">
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 18.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">⚡ Max Hardware Acceleration</h3>
+                  <p className="text-gray-600 text-sm mb-4">
+                    This will use all your CPU cores for faster encoding but will:
+                  </p>
+                </div>
+                
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-center space-x-3 text-sm">
+                    <span className="text-red-500">🔋</span>
+                    <span className="text-gray-700">Consume more battery power</span>
+                  </div>
+                  <div className="flex items-center space-x-3 text-sm">
+                    <span className="text-orange-500">🔥</span>
+                    <span className="text-gray-700">Generate more heat</span>
+                  </div>
+                  <div className="flex items-center space-x-3 text-sm">
+                    <span className="text-blue-500">⚙️</span>
+                    <span className="text-gray-700">May slow down other apps temporarily</span>
+                  </div>
+                </div>
+                
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4">
+                  <p className="text-sm text-blue-700">
+                    <strong>🖥️ Your System:</strong> {detectedCores} CPU cores detected
+                  </p>
+                </div>
+                
+                <div className="bg-green-50 border border-green-200 rounded-xl p-3 mb-6">
+                  <p className="text-sm text-green-700">
+                    <strong>💡 Best for:</strong> Desktop computers or when plugged in
+                  </p>
+                </div>
+                
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => setShowAccelerationWarning(false)}
+                    className="flex-1 px-4 py-3 bg-gray-200 text-gray-800 rounded-xl font-semibold hover:bg-gray-300 transition-colors duration-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      setUseMaxAcceleration(true);
+                      setShowAccelerationWarning(false);
+                    }}
+                    className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl font-semibold hover:from-purple-600 hover:to-purple-700 transition-all duration-200 shadow-lg"
+                  >
+                    Enable ⚡
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Compression Results */}
           {compressedSize > 0 && (
             <div className="mb-8 p-6 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl">
-              <h3 className="font-bold text-lg text-gray-900 mb-4 text-center">Compression Complete! 🎉</h3>
+              <h3 className="font-bold text-lg text-gray-900 mb-4 text-center">
+                Compression Complete! 🎉
+                {useMaxAcceleration && (
+                  <span className="text-sm text-purple-600 block">
+                    ⚡ Max acceleration used ({detectedCores} cores)
+                  </span>
+                )}
+              </h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                 <div className="bg-white rounded-xl p-4 shadow-sm">
                   <div className="text-2xl font-bold text-gray-900">{formatFileSize(originalSize)}</div>

@@ -175,7 +175,7 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## 🔗 Links
 
-- **Live Demo:** [Coming Soon - Deploy to see it live!]
+- **🚀 Live Demo:** [https://simpleencoder.vercel.app](https://simpleencoder.vercel.app)
 - **Repository:** [https://github.com/menobass/simpleencoder](https://github.com/menobass/simpleencoder)
 - **3Speak:** [https://3speak.tv](https://3speak.tv)
 
